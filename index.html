@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>かとちんのSNSプロフィール用プロンプト</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <h1>かとちんのSNSプロフィール用プロンプト</h1>
+      <p class="subtitle">タイトルをクリックするとプロンプト全文をコピーします。</p>
+    </header>
+
+    <main class="container">
+      <section class="card" aria-labelledby="prompt-list-title">
+        <h2 id="prompt-list-title">プロンプト一覧</h2>
+        <p id="status" class="status" role="status" aria-live="polite">読み込み中...</p>
+        <ul id="prompt-list" class="prompt-list" aria-label="プロンプトタイトル一覧"></ul>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
