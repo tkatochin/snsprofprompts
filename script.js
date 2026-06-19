@@ -278,6 +278,29 @@ function getHashGistId() {
   return hash.startsWith("#") ? hash.slice(1) : hash;
 }
 
+function getQueryCategoryValue() {
+  const params = new URLSearchParams(window.location.search);
+  const value = (params.get("category") || "").trim();
+  return value;
+}
+
+function applyCategorySelectionFromQuery() {
+  const categoryValue = getQueryCategoryValue();
+  if (!categoryValue) {
+    categorySelectEl.value = "";
+    return;
+  }
+
+  const exists = Array.from(categorySelectEl.options).some((option) => option.value === categoryValue);
+  if (!exists) {
+    categorySelectEl.value = "";
+    showToast("カテゴリが見つかりません");
+    return;
+  }
+
+  categorySelectEl.value = categoryValue;
+}
+
 async function autoCopyFromHash(entries) {
   const gistId = getHashGistId();
   if (!gistId) {
@@ -312,6 +335,7 @@ async function init() {
   try {
     statusEl.textContent = "Gist一覧を読み込んでいます...";
     renderCategoryOptions(CATEGORY_OPTIONS);
+    applyCategorySelectionFromQuery();
 
     const response = await fetch(GISTS_API, {
       headers: {
