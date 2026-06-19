@@ -228,6 +228,9 @@ body.is-loading .container {
   right: 34px;
   border-radius: 12px 0 0 12px;
   background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.9) 15%, rgba(255, 255, 255, 0.22) 32%, transparent 52%) 10px 0 / 6px 100% no-repeat,
+    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.88) 15%, rgba(255, 255, 255, 0.18) 30%, transparent 48%) 20px 0 / calc(100% - 20px) 100% no-repeat,
+    linear-gradient(180deg, transparent 0%, transparent 38%, rgba(0, 0, 0, 0.08) 66%, rgba(0, 0, 0, 0.28) 100%),
     linear-gradient(90deg, transparent 0 16px, var(--pencil-main-dark) 16px 20px, transparent 20px),
     linear-gradient(90deg, var(--pencil-eraser) 0 10px, var(--pencil-band) 10px 16px, transparent 16px),
     linear-gradient(90deg, transparent 0 16px, color-mix(in oklab, var(--pencil-main) 92%, white 8%) 16px 100%),
@@ -246,8 +249,8 @@ body.is-loading .container {
   width: 34px;
   height: 100%;
   background:
-    linear-gradient(90deg, var(--pencil-wood) 0 64%, var(--pencil-lead) 64% 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 38%, rgba(0, 0, 0, 0.08));
+    linear-gradient(180deg, transparent 0%, transparent 42%, rgba(0, 0, 0, 0.1) 66%, rgba(0, 0, 0, 0.3) 100%),
+    linear-gradient(90deg, var(--pencil-wood) 0 64%, var(--pencil-lead) 64% 100%);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
