@@ -12,9 +12,11 @@ const statusEl = document.getElementById("status");
 const listEl = document.getElementById("prompt-list");
 const toastEl = document.getElementById("toast");
 const categorySelectEl = document.getElementById("category-select");
+const rootEl = document.body;
 
 let toastTimer = null;
 let allEntries = [];
+const MIN_FILTER_EFFECT_MS = 260;
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -139,9 +141,10 @@ async function handleCopy(entry) {
 function renderList(entries) {
   listEl.innerHTML = "";
 
-  for (const entry of entries) {
+  for (const [index, entry] of entries.entries()) {
     const li = document.createElement("li");
-    li.className = "prompt-item";
+    li.className = "prompt-item drop-in";
+    li.style.setProperty("--stagger", `${index * 55}ms`);
 
     const button = document.createElement("button");
     button.type = "button";
@@ -161,20 +164,56 @@ function renderList(entries) {
   }
 }
 
+function setLoadingState(isLoading) {
+  rootEl.classList.toggle("is-loading", isLoading);
+  categorySelectEl.disabled = isLoading;
+}
+
+function triggerCompleteFlash() {
+  rootEl.classList.remove("flash-complete");
+  void rootEl.offsetWidth;
+  rootEl.classList.add("flash-complete");
+
+  window.setTimeout(() => {
+    rootEl.classList.remove("flash-complete");
+  }, 420);
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
 async function updateViewForSelectedCategory(entries) {
-  const selectedValue = categorySelectEl.value;
-  const filteredEntries = getFilteredEntries(entries, selectedValue);
+  const start = performance.now();
+  setLoadingState(true);
+  statusEl.textContent = "絞り込み中...";
 
-  if (filteredEntries.length === 0) {
-    statusEl.textContent = "0 件みつかりました";
-    listEl.innerHTML = "";
-    return;
+  try {
+    const selectedValue = categorySelectEl.value;
+    const filteredEntries = getFilteredEntries(entries, selectedValue);
+    const elapsed = performance.now() - start;
+    const waitMs = Math.max(0, MIN_FILTER_EFFECT_MS - elapsed);
+
+    if (waitMs > 0) {
+      await wait(waitMs);
+    }
+
+    if (filteredEntries.length === 0) {
+      statusEl.textContent = "0 件みつかりました";
+      listEl.innerHTML = "";
+      triggerCompleteFlash();
+      return;
+    }
+
+    statusEl.textContent = `${filteredEntries.length} 件みつかりました`;
+    renderList(filteredEntries);
+    triggerCompleteFlash();
+    await autoCopyFromHash(filteredEntries);
+  } finally {
+    setLoadingState(false);
   }
-
-  statusEl.textContent = `${filteredEntries.length} 件みつかりました`;
-
-  renderList(filteredEntries);
-  await autoCopyFromHash(filteredEntries);
 }
 
 function getHashGistId() {
@@ -228,6 +267,7 @@ async function init() {
       return;
     }
 
+    categorySelectEl.value = "";
     await updateViewForSelectedCategory(entries);
 
     categorySelectEl.addEventListener("change", async () => {
