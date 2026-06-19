@@ -52,14 +52,18 @@ function extractPromptEntries(gists) {
 function renderCategoryOptions(categories) {
   categorySelectEl.innerHTML = "";
 
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = "すべて";
+  allOption.selected = true;
+  categorySelectEl.appendChild(allOption);
+
   for (const category of categories) {
     const option = document.createElement("option");
     option.value = category.value;
     option.textContent = category.label;
     categorySelectEl.appendChild(option);
   }
-
-  categorySelectEl.selectedIndex = -1;
 }
 
 function buildPrefixPattern(prefix) {
@@ -160,23 +164,14 @@ function renderList(entries) {
 async function updateViewForSelectedCategory(entries) {
   const selectedValue = categorySelectEl.value;
   const filteredEntries = getFilteredEntries(entries, selectedValue);
-  const selectedCategory = CATEGORY_OPTIONS.find((item) => item.value === selectedValue);
 
   if (filteredEntries.length === 0) {
-    if (!selectedCategory) {
-      statusEl.textContent = "*.prompt に一致するファイルが見つかりませんでした。";
-    } else {
-      statusEl.textContent = `カテゴリ「${selectedCategory.label}」に一致するファイル（${selectedCategory.filenamePrefix}*.prompt）が見つかりませんでした。`;
-    }
+    statusEl.textContent = "0 件みつかりました";
     listEl.innerHTML = "";
     return;
   }
 
-  if (!selectedCategory) {
-    statusEl.textContent = `${filteredEntries.length}件のプロンプトを表示中（*.prompt）`;
-  } else {
-    statusEl.textContent = `カテゴリ「${selectedCategory.label}」で${filteredEntries.length}件のプロンプトを表示中（${selectedCategory.filenamePrefix}*.prompt）`;
-  }
+  statusEl.textContent = `${filteredEntries.length} 件みつかりました`;
 
   renderList(filteredEntries);
   await autoCopyFromHash(filteredEntries);
@@ -229,7 +224,7 @@ async function init() {
     allEntries = entries;
 
     if (entries.length === 0) {
-      statusEl.textContent = "*.prompt に一致するファイルが見つかりませんでした。";
+      statusEl.textContent = "0 件みつかりました";
       return;
     }
 
