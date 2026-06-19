@@ -159,10 +159,9 @@ body.is-loading .container {
 }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+  display: grid;
+  gap: 6px;
+  width: min(100%, 360px);
   margin: 0 0 14px;
 }
 
@@ -178,7 +177,7 @@ body.is-loading .container {
   font: inherit;
   background: linear-gradient(180deg, #ffffff 0%, #f8fdfd 100%);
   color: inherit;
-  min-width: min(100%, 360px);
+  width: 100%;
   box-shadow: 0 2px 0 rgba(31, 159, 143, 0.08);
 }
 
@@ -197,35 +196,90 @@ body.is-loading .container {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 14px;
+  width: min(100%, 360px);
+}
+
+.prompt-item {
+  --pencil-hue: 24;
+  --pencil-main: hsl(var(--pencil-hue) 90% 62%);
+  --pencil-main-dark: hsl(var(--pencil-hue) 78% 44%);
+  --pencil-main-soft: hsl(var(--pencil-hue) 98% 88%);
+  --pencil-wood: #f1d2a6;
+  --pencil-lead: #5d5f66;
+  --pencil-band: #d9dee8;
+  --pencil-eraser: #ffbfd0;
+  position: relative;
+  min-height: 48px;
+  filter: drop-shadow(0 5px 10px rgba(31, 36, 48, 0.14));
+}
+
+.prompt-item::before,
+.prompt-item::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.prompt-item::before {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 34px;
+  border-radius: 12px 0 0 12px;
+  background:
+    linear-gradient(90deg, transparent 0 16px, var(--pencil-main-dark) 16px 20px, transparent 20px),
+    linear-gradient(90deg, var(--pencil-eraser) 0 10px, var(--pencil-band) 10px 16px, transparent 16px),
+    linear-gradient(90deg, transparent 0 16px, color-mix(in oklab, var(--pencil-main) 92%, white 8%) 16px 100%),
+    repeating-linear-gradient(
+      -14deg,
+      transparent 0,
+      transparent 9px,
+      rgba(255, 255, 255, 0.14) 9px,
+      rgba(255, 255, 255, 0.14) 14px
+    );
+}
+
+.prompt-item::after {
+  top: 0;
+  right: 0;
+  width: 34px;
+  height: 100%;
+  background:
+    linear-gradient(90deg, var(--pencil-wood) 0 64%, var(--pencil-lead) 64% 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), transparent 38%, rgba(0, 0, 0, 0.08));
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .prompt-item button {
   width: 100%;
-  border: 1px solid rgba(210, 219, 231, 0.95);
+  position: relative;
+  z-index: 1;
+  border: 0;
   border-radius: 12px;
-  background: linear-gradient(180deg, #ffffff 0%, #fff9f3 100%);
-  color: inherit;
+  background: transparent;
+  color: #1f2430;
   text-align: left;
-  padding: 13px 14px;
+  padding: 14px 52px 14px 28px;
+  line-height: 1.45;
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(31, 36, 48, 0.06);
-  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+  transition: transform 130ms ease, filter 130ms ease;
 }
 
-.prompt-item button:hover,
+.prompt-item:hover,
+.prompt-item:focus-within {
+  transform: translateY(-2px) scale(1.01);
+  filter: saturate(1.08);
+}
+
 .prompt-item button:focus-visible {
-  border-color: rgba(255, 107, 74, 0.54);
-  background: linear-gradient(180deg, var(--accent-soft) 0%, #fff2ec 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(255, 107, 74, 0.14);
   outline: none;
 }
 
 .prompt-item button:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.998);
 }
 
 .prompt-item.drop-in {
@@ -297,6 +351,6 @@ body.is-loading .container {
   }
 
   .prompt-item button {
-    padding: 10px 12px;
+    padding: 12px 48px 12px 24px;
   }
 }

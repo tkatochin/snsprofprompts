@@ -20,6 +20,7 @@ let allEntries = [];
 const MIN_FILTER_EFFECT_MS = 260;
 let lastHashGistId = "";
 let hashPromptInitialized = false;
+const PENCIL_HUES = [12, 36, 58, 88, 138, 182, 224, 278, 322];
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -148,6 +149,8 @@ function renderList(entries) {
     const li = document.createElement("li");
     li.className = "prompt-item drop-in";
     li.style.setProperty("--stagger", `${index * 55}ms`);
+    const hue = PENCIL_HUES[index % PENCIL_HUES.length];
+    li.style.setProperty("--pencil-hue", `${hue}`);
 
     const button = document.createElement("button");
     button.type = "button";
