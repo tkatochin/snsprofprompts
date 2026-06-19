@@ -206,7 +206,8 @@ body.is-loading .container {
   --pencil-main-dark: hsl(var(--pencil-hue) 78% 44%);
   --pencil-main-soft: hsl(var(--pencil-hue) 98% 88%);
   --pencil-wood: #f1d2a6;
-  --pencil-lead: #5d5f66;
+  --pencil-lead: color-mix(in oklab, var(--pencil-main-dark) 82%, black 18%);
+  --pencil-lead-dark: color-mix(in oklab, var(--pencil-main-dark) 48%, black 52%);
   --pencil-band: #d9dee8;
   --pencil-eraser: #ffbfd0;
   position: relative;
@@ -250,7 +251,8 @@ body.is-loading .container {
   height: 100%;
   background:
     linear-gradient(180deg, transparent 0%, transparent 42%, rgba(0, 0, 0, 0.1) 66%, rgba(0, 0, 0, 0.3) 100%),
-    linear-gradient(90deg, var(--pencil-wood) 0 64%, var(--pencil-lead) 64% 100%);
+    linear-gradient(180deg, var(--pencil-lead) 0%, var(--pencil-lead) 42%, var(--pencil-lead-dark) 100%) 70% 0 / 30% 100% no-repeat,
+    linear-gradient(90deg, var(--pencil-wood) 0 70%, transparent 70% 100%);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
