@@ -3,18 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>かとちんのSNSプロフィール用プロンプト</title>
+    <title>かとちんの公開プロンプト置き場</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header class="page-header">
-      <h1>かとちんのSNSプロフィール用プロンプト</h1>
-      <p class="subtitle">タイトルをクリックするとプロンプト全文をコピーします。</p>
+      <h1>かとちんの公開プロンプト置き場</h1>
+      <p class="subtitle">かとちんの公開Gistからカテゴリで絞り込み、タイトルをクリックするとプロンプト全文をコピーします。</p>
     </header>
 
     <main class="container">
       <section class="card" aria-labelledby="prompt-list-title">
         <h2 id="prompt-list-title">プロンプト一覧</h2>
+        <div class="controls">
+          <label for="category-select">カテゴリ</label>
+          <select id="category-select" aria-label="プロンプトカテゴリ選択"></select>
+        </div>
         <p id="status" class="status" role="status" aria-live="polite">読み込み中...</p>
         <ul id="prompt-list" class="prompt-list" aria-label="プロンプトタイトル一覧"></ul>
       </section>

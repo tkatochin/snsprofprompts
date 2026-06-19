@@ -1,11 +1,24 @@
 const GISTS_API = "https://api.github.com/users/tkatochin/gists?per_page=100";
-const FILE_PATTERN = /^snsprof-.*\.prompt$/;
+const ALL_PROMPT_PATTERN = /\.prompt$/;
+const CATEGORY_OPTIONS = [
+  {
+    value: "snsprof",
+    label: "SNSプロフィールスクショから画像生成",
+    filenamePrefix: "snsprof",
+  },
+];
 
 const statusEl = document.getElementById("status");
 const listEl = document.getElementById("prompt-list");
 const toastEl = document.getElementById("toast");
+const categorySelectEl = document.getElementById("category-select");
 
 let toastTimer = null;
+let allEntries = [];
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function extractPromptEntries(gists) {
   const entries = [];
@@ -14,7 +27,7 @@ function extractPromptEntries(gists) {
     const files = Object.values(gist.files || {});
 
     for (const file of files) {
-      if (!FILE_PATTERN.test(file.filename)) {
+      if (!ALL_PROMPT_PATTERN.test(file.filename)) {
         continue;
       }
 
@@ -34,6 +47,37 @@ function extractPromptEntries(gists) {
     return bTime - aTime;
   });
   return entries;
+}
+
+function renderCategoryOptions(categories) {
+  categorySelectEl.innerHTML = "";
+
+  for (const category of categories) {
+    const option = document.createElement("option");
+    option.value = category.value;
+    option.textContent = category.label;
+    categorySelectEl.appendChild(option);
+  }
+
+  categorySelectEl.selectedIndex = -1;
+}
+
+function buildPrefixPattern(prefix) {
+  return new RegExp(`^${escapeRegExp(prefix)}.*\\.prompt$`);
+}
+
+function getFilteredEntries(entries, selectedValue) {
+  if (!selectedValue) {
+    return entries;
+  }
+
+  const category = CATEGORY_OPTIONS.find((item) => item.value === selectedValue);
+  if (!category) {
+    return entries;
+  }
+
+  const pattern = buildPrefixPattern(category.filenamePrefix);
+  return entries.filter((entry) => pattern.test(entry.filename));
 }
 
 function showToast(message) {
@@ -113,6 +157,31 @@ function renderList(entries) {
   }
 }
 
+async function updateViewForSelectedCategory(entries) {
+  const selectedValue = categorySelectEl.value;
+  const filteredEntries = getFilteredEntries(entries, selectedValue);
+  const selectedCategory = CATEGORY_OPTIONS.find((item) => item.value === selectedValue);
+
+  if (filteredEntries.length === 0) {
+    if (!selectedCategory) {
+      statusEl.textContent = "*.prompt に一致するファイルが見つかりませんでした。";
+    } else {
+      statusEl.textContent = `カテゴリ「${selectedCategory.label}」に一致するファイル（${selectedCategory.filenamePrefix}*.prompt）が見つかりませんでした。`;
+    }
+    listEl.innerHTML = "";
+    return;
+  }
+
+  if (!selectedCategory) {
+    statusEl.textContent = `${filteredEntries.length}件のプロンプトを表示中（*.prompt）`;
+  } else {
+    statusEl.textContent = `カテゴリ「${selectedCategory.label}」で${filteredEntries.length}件のプロンプトを表示中（${selectedCategory.filenamePrefix}*.prompt）`;
+  }
+
+  renderList(filteredEntries);
+  await autoCopyFromHash(filteredEntries);
+}
+
 function getHashGistId() {
   const hash = window.location.hash.trim();
   if (!hash) {
@@ -143,6 +212,7 @@ async function autoCopyFromHash(entries) {
 async function init() {
   try {
     statusEl.textContent = "Gist一覧を読み込んでいます...";
+    renderCategoryOptions(CATEGORY_OPTIONS);
 
     const response = await fetch(GISTS_API, {
       headers: {
@@ -156,15 +226,18 @@ async function init() {
 
     const gists = await response.json();
     const entries = extractPromptEntries(gists);
+    allEntries = entries;
 
     if (entries.length === 0) {
-      statusEl.textContent = "snsprof-*.prompt に一致するファイルが見つかりませんでした。";
+      statusEl.textContent = "*.prompt に一致するファイルが見つかりませんでした。";
       return;
     }
 
-    statusEl.textContent = `${entries.length}件のプロンプトを表示中`;
-    renderList(entries);
-    await autoCopyFromHash(entries);
+    await updateViewForSelectedCategory(entries);
+
+    categorySelectEl.addEventListener("change", async () => {
+      await updateViewForSelectedCategory(allEntries);
+    });
   } catch (error) {
     statusEl.textContent = "読み込みに失敗しました。時間をおいて再度お試しください。";
     showToast(error.message || "初期化に失敗しました");
