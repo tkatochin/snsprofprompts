@@ -12,11 +12,14 @@ const statusEl = document.getElementById("status");
 const listEl = document.getElementById("prompt-list");
 const toastEl = document.getElementById("toast");
 const categorySelectEl = document.getElementById("category-select");
+const hashCopyPanelEl = document.getElementById("hash-copy-panel");
 const rootEl = document.body;
 
 let toastTimer = null;
 let allEntries = [];
 const MIN_FILTER_EFFECT_MS = 260;
+let lastHashGistId = "";
+let hashPromptInitialized = false;
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -185,6 +188,57 @@ function wait(ms) {
   });
 }
 
+function clearHashCopyPanel() {
+  hashCopyPanelEl.hidden = true;
+  hashCopyPanelEl.innerHTML = "";
+}
+
+function showHashCopyPrompt(entry) {
+  hashCopyPanelEl.hidden = false;
+  hashCopyPanelEl.innerHTML = "";
+
+  const message = document.createElement("p");
+  message.className = "hash-copy-message";
+  message.textContent = `${entry.title} のプロンプトをコピーしますか？`;
+
+  const actions = document.createElement("div");
+  actions.className = "hash-copy-actions";
+
+  const copyButton = document.createElement("button");
+  copyButton.type = "button";
+  copyButton.className = "hash-copy-button primary";
+  copyButton.textContent = "コピーする";
+
+  const cancelButton = document.createElement("button");
+  cancelButton.type = "button";
+  cancelButton.className = "hash-copy-button secondary";
+  cancelButton.textContent = "閉じる";
+
+  copyButton.addEventListener("click", async () => {
+    copyButton.disabled = true;
+    cancelButton.disabled = true;
+
+    try {
+      await handleCopy(entry);
+      clearHashCopyPanel();
+    } catch (error) {
+      showToast(error.message || "コピーに失敗しました。ボタン操作でもう一度お試しください");
+      copyButton.disabled = false;
+      cancelButton.disabled = false;
+    }
+  });
+
+  cancelButton.addEventListener("click", () => {
+    clearHashCopyPanel();
+    showToast("コピーをキャンセルしました");
+  });
+
+  actions.appendChild(copyButton);
+  actions.appendChild(cancelButton);
+  hashCopyPanelEl.appendChild(message);
+  hashCopyPanelEl.appendChild(actions);
+}
+
 async function updateViewForSelectedCategory(entries) {
   const start = performance.now();
   setLoadingState(true);
@@ -210,7 +264,7 @@ async function updateViewForSelectedCategory(entries) {
     statusEl.textContent = `${filteredEntries.length} 件みつかりました`;
     renderList(filteredEntries);
     triggerCompleteFlash();
-    await autoCopyFromHash(filteredEntries);
+    await autoCopyFromHash(allEntries);
   } finally {
     setLoadingState(false);
   }
@@ -227,20 +281,31 @@ function getHashGistId() {
 async function autoCopyFromHash(entries) {
   const gistId = getHashGistId();
   if (!gistId) {
+    lastHashGistId = "";
+    hashPromptInitialized = false;
+    clearHashCopyPanel();
+    return;
+  }
+
+  if (gistId !== lastHashGistId) {
+    lastHashGistId = gistId;
+    hashPromptInitialized = false;
+    clearHashCopyPanel();
+  }
+
+  if (hashPromptInitialized) {
     return;
   }
 
   const target = entries.find((entry) => entry.gistId === gistId);
   if (!target) {
     showToast(`指定されたgist-id (${gistId}) が見つかりません`);
+    hashPromptInitialized = true;
     return;
   }
 
-  try {
-    await handleCopy(target);
-  } catch (error) {
-    showToast(error.message || "自動コピーに失敗しました");
-  }
+  showHashCopyPrompt(target);
+  hashPromptInitialized = true;
 }
 
 async function init() {

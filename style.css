@@ -102,6 +102,50 @@ body.is-loading .container {
   color: var(--text-sub);
 }
 
+.hash-copy-panel {
+  margin: 0 0 14px;
+  border: 1px solid #b8d8cb;
+  border-radius: 10px;
+  background: #f1fbf6;
+  padding: 10px 12px;
+}
+
+.hash-copy-message {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.hash-copy-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hash-copy-button {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hash-copy-button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.hash-copy-button.secondary {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--text-main);
+}
+
+.hash-copy-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
